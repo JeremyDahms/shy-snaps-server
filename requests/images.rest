@@ -1,0 +1,13 @@
+GET http://localhost:3000/images/IMG-8725.JPG
+
+###
+
+GET http://localhost:3000/images/
+
+###
+
+GET http://localhost:3000/images/yeard
+
+###
+
+GET http://localhost:3000/images/tests123
