@@ -1,43 +1,52 @@
 const express = require('express');
-const router = express.Router();
-const fs = require('fs');
-const util = require('util');
-const unlinkFile = util.promisify(fs.unlink);
 const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
+const crypto = require('crypto');
 const Image = require('../models/Image');
+const { uploadFile, getFileStream, getImageUrl } = require('../awsS3');
 
-const { uploadFile, getFileStream, getAllPhotos } = require('../awsS3');
+const router = express.Router();
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
+const generateRandomKey = (bytes = 32) =>
+  crypto.randomBytes(bytes).toString('hex');
+
+// GET
 router.get('/', async (req, res) => {
   try {
-    const result = await getAllPhotos();
-    res.send(result.Contents);
+    const images = await Image.find().lean();
+    const signedImages = await Promise.all(
+      images.map(async (image) => {
+        const url = await getImageUrl(image.name);
+        return { ...image, signedUrl: url };
+      })
+    );
+    res.send(signedImages);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
 router.get('/:key', async (req, res) => {
-  console.log(req.params.key);
   try {
-    const readStream = await getFileStream(req.params.key);
-    readStream.Body.pipe(res);
+    const image = await Image.findOne({ name: req.params.key }).lean();
+    const url = await getImageUrl(image.name);
+    res.send({ ...image, signedUrl: url });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
+// POST
 router.post('/', upload.single('image'), async (req, res) => {
   try {
-    const file = req.file;
+    const { body, file } = req;
+    file.key = generateRandomKey();
     const result = await uploadFile(file);
     await Image.create({
-      url: `https://shysnapsphotos.s3.${process.env.S3_BUCKET_REGION}.amazonaws.com/${file.filename}`,
-      name: file.originalname,
-      key: file.filename,
+      name: file.key,
+      description: body.description,
     });
-    await unlinkFile(file.path);
     res.send(result);
   } catch (err) {
     res.status(500).json({ message: err.message });

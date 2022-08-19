@@ -4,7 +4,7 @@ const {
   GetObjectCommand,
   ListObjectsCommand,
 } = require('@aws-sdk/client-s3');
-const fs = require('fs');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
 const bucketName = process.env.S3_BUCKET_NAME;
 const region = process.env.S3_BUCKET_REGION;
@@ -12,19 +12,20 @@ const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
 const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
 
 const s3Client = new S3Client({
-  accessKeyId,
-  secretAccessKey,
+  credentials: {
+    accessKeyId,
+    secretAccessKey,
+  },
   region,
 });
 exports.s3Client = s3Client;
 
 async function uploadFile(file) {
-  const fileStream = fs.createReadStream(file.path);
-  console.log(file);
   const uploadParams = {
     Bucket: bucketName,
-    Body: fileStream,
-    Key: file.filename,
+    Key: file.key,
+    Body: file.buffer,
+    ContentType: file.mimetype,
   };
   const data = await s3Client.send(new PutObjectCommand(uploadParams));
   return data;
@@ -40,6 +41,17 @@ async function getFileStream(fileKey) {
   return s3Client.send(new GetObjectCommand(downloadParams));
 }
 exports.getFileStream = getFileStream;
+
+async function getImageUrl(fileKey) {
+  const downloadParams = {
+    Bucket: bucketName,
+    Key: fileKey,
+  };
+  const command = new GetObjectCommand(downloadParams);
+  const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+  return url;
+}
+exports.getImageUrl = getImageUrl;
 
 async function getAllPhotos() {
   const getAllParams = {

@@ -3,7 +3,6 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
-const User = require('./models/user');
 
 mongoose.connect(process.env.DATABASE_URL, {
   useNewUrlParser: true,
@@ -42,9 +41,6 @@ function paginatedResults(model) {
 }
 
 app.use(express.json());
-
-const usersRouter = require('./routes/users');
-app.use('/users', usersRouter);
 
 const imagesRouter = require('./routes/images');
 app.use('/images', imagesRouter);
