@@ -1,8 +1,10 @@
 const mongoose = require('mongoose');
 
 const ImageSchema = new mongoose.Schema({
-  name: String,
+  key: String,
+  title: String,
   description: String,
+  tags: [String]
 });
 
 module.exports = mongoose.model('images', ImageSchema);

@@ -6,7 +6,12 @@ const { uploadFile, getFileStream, getImageUrl } = require('../awsS3');
 
 const router = express.Router();
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: storage,
+  limits: {
+    fieldSize: 52428800,
+  },
+});
 
 const generateRandomKey = (bytes = 32) =>
   crypto.randomBytes(bytes).toString('hex');
@@ -17,7 +22,7 @@ router.get('/', async (req, res) => {
     const images = await Image.find().lean();
     const signedImages = await Promise.all(
       images.map(async (image) => {
-        const url = await getImageUrl(image.name);
+        const url = await getImageUrl(image.key);
         return { ...image, signedUrl: url };
       })
     );
@@ -29,8 +34,8 @@ router.get('/', async (req, res) => {
 
 router.get('/:key', async (req, res) => {
   try {
-    const image = await Image.findOne({ name: req.params.key }).lean();
-    const url = await getImageUrl(image.name);
+    const image = await Image.findOne({ key: req.params.key }).lean();
+    const url = await getImageUrl(image.key);
     res.send({ ...image, signedUrl: url });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -44,8 +49,10 @@ router.post('/', upload.single('image'), async (req, res) => {
     file.key = generateRandomKey();
     const result = await uploadFile(file);
     await Image.create({
-      name: file.key,
+      key: file.key,
+      title: body.title,
       description: body.description,
+      tags: body.tags,
     });
     res.send(result);
   } catch (err) {

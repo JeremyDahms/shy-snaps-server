@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const mongoose = require('mongoose');
 
@@ -40,6 +41,7 @@ function paginatedResults(model) {
   };
 }
 
+app.use(cors());
 app.use(express.json());
 
 const imagesRouter = require('./routes/images');
