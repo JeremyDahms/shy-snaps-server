@@ -47,4 +47,7 @@ app.use(express.json());
 const imagesRouter = require('./routes/images');
 app.use('/images', imagesRouter);
 
+const newsletterSignUpsRouter = require('./routes/newsletterSignUps');
+app.use('/newsletterSignUps', newsletterSignUpsRouter);
+
 app.listen(8080, () => console.log('Server Started'));

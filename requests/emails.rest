@@ -1,0 +1,10 @@
+GET http://localhost:8080/newsletterSignUps
+
+###
+
+POST http://localhost:8080/newsletterSignUps
+Content-Type: application/json
+
+{
+    "email": "jeremydahms@gmail.com"
+}
