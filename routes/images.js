@@ -1,8 +1,14 @@
 const express = require('express');
 const multer = require('multer');
+const sharp = require('sharp');
 const crypto = require('crypto');
 const Image = require('../models/Image');
-const { uploadFile, getFileStream, getImageUrl } = require('../awsS3');
+const {
+  uploadFile,
+  getFileStream,
+  getImageUrl,
+  getImage,
+} = require('../awsS3');
 
 const router = express.Router();
 const storage = multer.memoryStorage();
@@ -20,19 +26,27 @@ const generateRandomKey = (bytes = 32) =>
 router.get('/', async (req, res) => {
   try {
     const images = await Image.find().lean();
-    const signedImages = await Promise.all(
-      images.map(async (image) => {
-        const url = await getImageUrl(image.key);
-        return { ...image, signedUrl: url };
-      })
-    );
-    res.send(signedImages);
+    res.send(images);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
 router.get('/:key', async (req, res) => {
+  try {
+    const { key } = req.params;
+    const original = await getImage(key);
+    const resized = await sharp(original)
+      .jpeg({ quality: 60, force: false })
+      .toBuffer();
+    res.set('Content-Type', 'image/png');
+    res.send(resized);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.get('/:key/signedUrl', async (req, res) => {
   try {
     const image = await Image.findOne({ key: req.params.key }).lean();
     const url = await getImageUrl(image.key);

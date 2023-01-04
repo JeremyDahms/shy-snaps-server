@@ -60,4 +60,26 @@ async function getAllPhotos() {
 
   return s3Client.send(new ListObjectsCommand(getAllParams));
 }
+
 exports.getAllPhotos = getAllPhotos;
+
+async function getImage(imageKey) {
+  const streamToString = (stream) =>
+    new Promise((resolve, reject) => {
+      const chunks = [];
+      stream.on('data', (chunk) => chunks.push(chunk));
+      stream.on('error', reject);
+      stream.on('end', () => resolve(Buffer.concat(chunks)));
+    });
+  try {
+    const { Body } = await s3Client.send(
+      new GetObjectCommand({ Bucket: bucketName, Key: imageKey })
+    );
+
+    return await streamToString(Body);
+  } catch (err) {
+    console.log('Error', err);
+  }
+}
+
+exports.getImage = getImage;
