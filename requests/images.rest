@@ -1,8 +1,8 @@
-GET http://localhost:3000/images/IMG-8725.JPG
+GET http://localhost:8080/images/IMG-8725.JPG
 
 ###
 
-GET http://localhost:3000/images/
+GET http://localhost:8080/images/
 
 ###
 
