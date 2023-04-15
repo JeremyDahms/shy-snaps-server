@@ -4,12 +4,6 @@ phases:
   install:
     runtime-versions:
       nodejs: 14 # Change this to the version you are using
-    commands:
-      # Install the Elastic Beanstalk CLI
-      - echo Installing the Elastic Beanstalk CLI...
-      - curl -Lo awsebcli.zip https://s3.amazonaws.com/aws-cli/awscli-bundle.zip
-      - unzip awsebcli.zip
-      - ./awscli-bundle/install -b ~/bin/aws
 
   pre_build:
     commands:
@@ -24,17 +18,10 @@ phases:
       # If you have a build script, uncomment the following line:
       # - npm run build
 
-  post_build:
-    commands:
-      # Package the application for Elastic Beanstalk
-      - echo Packaging the application for Elastic Beanstalk...
-      - mkdir -p .elasticbeanstalk
-      - echo '{ "deploy": { "artifact": "deployment.zip" }}' > .elasticbeanstalk/config.yml
-      - zip -r deployment.zip . -x "*.git*" "*node_modules*" "*awscli*"
-
 artifacts:
   files:
-    - deployment.zip
+    - '**/*'
+  discard-paths: yes
 
 cache:
   paths:
