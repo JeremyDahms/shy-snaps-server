@@ -23,7 +23,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(compression());
-app.use(helmet());
+//app.use(helmet());
 
 // Required for EBS (Elastic Beanstalk)
 app.get('/', (req, res) => {
