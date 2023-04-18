@@ -25,6 +25,11 @@ app.use(express.json());
 app.use(compression());
 app.use(helmet());
 
+// Required for EBS (Elastic Beanstalk)
+app.get('/health', (req, res) => {
+  res.send('OK');
+});
+
 app.use('/contacts', contactsRouter);
 app.use('/images', imagesRouter);
 app.use('/newsletterSignUps', newsletterSignUpsRouter);
