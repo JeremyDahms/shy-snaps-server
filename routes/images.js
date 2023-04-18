@@ -1,6 +1,6 @@
 const express = require('express');
 const multer = require('multer');
-const sharp = require('sharp');
+//const sharp = require('sharp');
 const crypto = require('crypto');
 const Image = require('../models/Image');
 const {
@@ -36,11 +36,11 @@ router.get('/:key', async (req, res) => {
   try {
     const { key } = req.params;
     const original = await getImage(key);
-    const resized = await sharp(original)
-      .jpeg({ quality: 60, force: false })
-      .toBuffer();
+    // const resized = await sharp(original)
+    //   .jpeg({ quality: 60, force: false })
+    //   .toBuffer();
     res.set('Content-Type', 'image/png');
-    res.send(resized);
+    res.send(original);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
