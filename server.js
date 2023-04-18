@@ -38,7 +38,7 @@ app.use('/contacts', contactsRouter);
 app.use('/images', imagesRouter);
 app.use('/newsletterSignUps', newsletterSignUpsRouter);
 
-app.listen(8080, () => console.log('Server Started'));
+app.listen(process.env.PORT || 8080, () => console.log('Server Started'));
 
 // function paginatedResults(model) {
 //   return async (req, res, next) => {
