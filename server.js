@@ -29,9 +29,6 @@ app.use(helmet());
 app.get('/', (req, res) => {
   res.send('OK');
 });
-app.get('/health', (req, res) => {
-  res.send('OK');
-});
 
 app.use('/contacts', contactsRouter);
 app.use('/images', imagesRouter);
