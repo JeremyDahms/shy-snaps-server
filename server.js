@@ -26,6 +26,9 @@ app.use(compression());
 app.use(helmet());
 
 // Required for EBS (Elastic Beanstalk)
+app.get('/', (req, res) => {
+  res.send('OK');
+});
 app.get('/health', (req, res) => {
   res.send('OK');
 });
