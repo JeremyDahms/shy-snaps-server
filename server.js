@@ -27,7 +27,11 @@ app.use(helmet());
 
 // Required for EBS (Elastic Beanstalk)
 app.get('/', (req, res) => {
-  res.send('OK');
+  res.send('Hello, world!');
+});
+
+app.get('/test', (req, res) => {
+  res.send('TEST SUCCESS');
 });
 
 app.use('/contacts', contactsRouter);
